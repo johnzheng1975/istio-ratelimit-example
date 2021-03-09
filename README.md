@@ -6,16 +6,14 @@ service. In this task, you will try global rate-limit on the `productpage` servi
 
 There will be two examples:
 
-`Example 1:`
-- Allows 1 requests per minute for productpage api.
-- Allows 10 requests per minute across for other api.  
+
 
 `Example 2:`
-For productpage api, 
-- When X-HPBP-Tenant-ID: tenant01, set limit 5 times/min
-- When X-HPBP-Tenant-ID: tenant02, set limit8 times/min
-- When X-HPBP-Tenant-ID is other value, set limit 3 times/min
-For other api, 10 requests per minute
+- For productpage api, 
+  - When X-HPBP-Tenant-ID: tenant01, allows 5 times/min
+  - When X-HPBP-Tenant-ID: tenant02, allows 8 times/min
+  - When X-HPBP-Tenant-ID is other value, allows 3 times/min
+- For other api, allows 10 requests per minute
 
 In order to enchence your understanding, will also change some redis changes in this example.
 
@@ -35,13 +33,18 @@ Local rate limiting is used to limit the rate of requests per service instance.
 In this task you will configure Envoy to rate limit traffic to a specific path of a service
 using both global rate limits.
 
-### Global rate limit
+## Architecture
 
 Envoy can be used to [set up global rate limits](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/other_features/global_rate_limiting) for your mesh.
 Global rate limiting in Envoy uses a gRPC API for requesting quota from a rate limiting service.
 A [reference implementation](https://github.com/envoyproxy/ratelimit) of the API, written in Go with a Redis
 backend, is used below.
 
+
+### Example 1
+- For productpage api, allows 1 requests per minute  
+- For other api, allows 10 requests per minute
+- 
 1. Use the following configmap to [configure the reference implementation](https://github.com/envoyproxy/ratelimit#configuration)
     to rate limit requests to the path `/productpage` at 1 req/min and all other requests at 10 req/min.
 
