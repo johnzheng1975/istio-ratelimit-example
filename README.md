@@ -4,6 +4,7 @@
 This task shows you how to use Envoy's native rate limiting to dynamically limit the traffic to an Istio
 service. In this task, you will try global rate-limit on the `productpage` service through ingress gateway. 
 
+
 There will be two examples:
 
 
@@ -40,6 +41,7 @@ Global rate limiting in Envoy uses a gRPC API for requesting quota from a rate l
 A [reference implementation](https://github.com/envoyproxy/ratelimit) of the API, written in Go with a Redis
 backend, is used below.
 
+![alt text](./ratelimit-redis.png)
 
 ### Example 1
 - For productpage api, allows 1 requests per minute  
