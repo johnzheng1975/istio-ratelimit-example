@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ratelimit-config
+  namespace: ratelimit
+data:
+  config.yaml: |
+    domain: productpage-ratelimit
+    descriptors:
+      - key: PATH
+        value: "/productpage"
+        descriptors:
+          - key: TENANTID
+            value: tenant01
+            rate_limit:
+              unit: minute
+              requests_per_unit: 5
+          - key: TENANTID
+            value: tenant02
+            rate_limit:
+              unit: minute
+              requests_per_unit: 8
+          - key: TENANTID
+            rate_limit:
+              unit: minute
+              requests_per_unit: 3
+      - key: PATH
+        rate_limit:
+          unit: minute
+          requests_per_unit: 10
