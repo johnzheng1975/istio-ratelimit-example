@@ -4,19 +4,8 @@
 This task shows you how to use Envoy's native rate limiting to dynamically limit the traffic to an Istio
 service. In this task, you will try global rate-limit on the `productpage` service through ingress gateway. 
 
-
-There will be two examples:
-
-
-
-`Example 2:`
-- For productpage api, 
-  - When X-HPBP-Tenant-ID: tenant01, allows 5 times/min
-  - When X-HPBP-Tenant-ID: tenant02, allows 8 times/min
-  - When X-HPBP-Tenant-ID is other value, allows 3 times/min
-- For other api, allows 10 requests per minute
-
-In order to enchence your understanding, will also change some redis changes in this example.
+There will be two examples in this task.
+In order to enchence your understanding, will also show some redis key/value in this example.
 
 ## Before you begin
 
