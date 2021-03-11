@@ -63,6 +63,7 @@ $ curl "http://$GATEWAY_URL/api/v1/products"
 # Try once more, return 429.
 ```
 #### View redis to understand more
+The redis store the access times for each action.
 ```
 127.0.0.1:6379> KEYS *
 1) "productpage-ratelimit_PATH_/productpage_1615455060"
@@ -105,7 +106,7 @@ $ curl "http://$GATEWAY_URL/api/v1/products"
     The `rate_limit_service` field specifies the external rate limit service, `rate_limit_cluster` in this case.
     The second patch defines the `rate_limit_cluster`, which provides the endpoint location of the external rate limit service.
     ```
-    cat ./example01/40-envoyfilter-ratelimit.yaml
+    cat ./example01/30-envoyfilter-ratelimit.yaml
     ``` 
 
 1. Apply another `EnvoyFilter` to the `ingressgateway` that defines the route configuration on which to rate limit.
@@ -159,6 +160,7 @@ $ curl "http://$GATEWAY_URL/api/v1/products"
 
 
 #### View redis to understand more
+The redis store the access times for each action.
 ```
 127.0.0.1:6379> KEYS *
 1) "productpage-ratelimit_PATH_/productpage_TENANTID_tenant03_1615466880"
@@ -172,13 +174,13 @@ $ curl "http://$GATEWAY_URL/api/v1/products"
 "4"
 ```
 #### Understand the config files
-1. Below are deployment and service for ratelmit, redis.
+1. Below are deployment and service for ratelmit, redis.  
+   `Same with example01` 
     ```
-    cat ./example01/20-service-ratelimit-redis.yaml
+    cat ./example02/20-service-ratelimit-redis.yaml
     ```
 
-1. Use the following configmap to [configure the reference implementation](https://github.com/envoyproxy/ratelimit#configuration)
-    to rate limit requests to the path `/productpage` at 1 req/min and all other requests at 10 req/min.
+1. Use the following configmap to rate limit requests to the path `/productpage`, different limits based on different tenant
     ```
     apiVersion: v1
     kind: ConfigMap
@@ -191,9 +193,21 @@ $ curl "http://$GATEWAY_URL/api/v1/products"
         descriptors:
           - key: PATH
             value: "/productpage"
-            rate_limit:
-              unit: minute
-              requests_per_unit: 1
+            descriptors:
+              - key: TENANTID
+                value: tenant01
+                rate_limit:
+                  unit: minute
+                  requests_per_unit: 5
+              - key: TENANTID
+                value: tenant02
+                rate_limit:
+                  unit: minute
+                  requests_per_unit: 8
+              - key: TENANTID
+                rate_limit:
+                  unit: minute
+                  requests_per_unit: 3
           - key: PATH
             rate_limit:
               unit: minute
@@ -201,20 +215,32 @@ $ curl "http://$GATEWAY_URL/api/v1/products"
     ```
 
 1. Apply an `EnvoyFilter` to the `ingressgateway` to enable global rate limiting using Envoy's global rate limit filter. 
-    The first patch inserts the
-    `envoy.filters.http.ratelimit` [global envoy filter](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/http/ratelimit/v3/rate_limit.proto#envoy-v3-api-msg-extensions-filters-http-ratelimit-v3-ratelimit) filter into the `HTTP_FILTER` chain.
-    The `rate_limit_service` field specifies the external rate limit service, `rate_limit_cluster` in this case.
-    The second patch defines the `rate_limit_cluster`, which provides the endpoint location of the external rate limit service.
+   `Same with example01` 
     ```
-    cat ./example01/40-envoyfilter-ratelimit.yaml
+    cat ./example02/30-envoyfilter-ratelimit.yaml
     ``` 
 
 1. Apply another `EnvoyFilter` to the `ingressgateway` that defines the route configuration on which to rate limit.
-    This adds [rate limit actions](https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-msg-config-route-v3-ratelimit)
-    for any route from a virtual host named `*.80`.
+    This adds more [rate limit actions](https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-msg-config-route-v3-ratelimit)
+    based on new requriments.
 
     ```
-    cat ./example01/40-envoyfilter-ratelimit-svc.yaml
+    cat ./example02/40-envoyfilter-ratelimit-svc.yaml
+    ... ...
+        value:
+          rate_limits:
+            - actions: # more actions based on new requirment
+              - request_headers:
+                  header_name: ":path"
+                  descriptor_key: "PATH"
+              - request_headers:
+                  header_name: "X-HPBP-Tenant-ID"
+                  descriptor_key: "TENANTID"
+            - actions: # actions in example01
+              - request_headers:
+                  header_name: ":path"
+                  descriptor_key: "PATH"
+    ... ...
     ```
 
 #### Clean up
