@@ -55,12 +55,12 @@ kubectl apply -f ./example01/
 #### Verify the results
 ```
 $ curl "http://$GATEWAY_URL/productpage"
-# First time, return 200.
-# Second time, return 429.
+# Try first time, return 200.
+# Try second time, return 429.
 
 $ curl "http://$GATEWAY_URL/api/v1/products"
-# First ten time, return 200.
-# Once more, return 429.
+# Try first ten times, return 200.
+# Try once more, return 429.
 ```
 #### View redis to understand more
 ```
@@ -115,29 +115,44 @@ $ curl "http://$GATEWAY_URL/api/v1/products"
     ```
     cat ./example01/40-envoyfilter-ratelimit-svc.yaml
     ```
-#### Apply files
+#### Clean up
 ```
 kubectl delete -f ./example01/
 ```
 
 ### Example 2
 #### Requirments
-- For productpage api, allows 1 requests per minute  
+Make it is more complex
+- For http header X-HPBP-Tenant-ID is tenant01, 5 times/min
+- For http header X-HPBP-Tenant-ID is tenant02, 8 times/min
+- For http header X-HPBP-Tenant-ID is other value, 3 times/min
 - For other api, allows 10 requests per minute
 
 #### Apply files
 ```
-kubectl apply -f ./example01/
+kubectl create -f ./example02/
 ```
 #### Verify the results
 ```
-$ curl "http://$GATEWAY_URL/productpage" -v
-# First time, return 200.
-# Second time, return 429.
+$ curl "http://$GATEWAY_URL/productpage" -H "X-HPBP-Tenant-ID: tenant01" -v
+# Try first five times, return 200.
+# Try sixth time, return 429.
 
-$ curl "http://$GATEWAY_URL/api/v1/products" -v
-# First ten time, return 200.
-# Once more, return 429.
+$ curl "http://$GATEWAY_URL/productpage" -H "X-HPBP-Tenant-ID: tenant02" -v
+# Try first eight times, return 200.
+# Try ninth time, return 429.
+
+$ curl "http://$GATEWAY_URL/productpage" -H "X-HPBP-Tenant-ID: tenant03" -v
+# Try first three times, return 200.
+# Try fourth time, return 429.
+
+$ curl "http://$GATEWAY_URL/productpage" -H "X-HPBP-Tenant-ID: othervalue" -v
+# Try first three times, return 200.
+# Try fourth time, return 429.
+
+$ curl "http://$GATEWAY_URL/api/v1/products"
+# Try first ten times, return 200.
+# Try once more, return 429.
 ```
 
 `$GATEWAY_URL` is the value set in the [Bookinfo](/docs/examples/bookinfo/) example.
@@ -146,10 +161,15 @@ $ curl "http://$GATEWAY_URL/api/v1/products" -v
 #### View redis to understand more
 ```
 127.0.0.1:6379> KEYS *
-1) "productpage-ratelimit_PATH_/productpage_1615455060"
-2) "productpage-ratelimit_PATH_/api/v1/products_1615455120"
-127.0.0.1:6379> GET "productpage-ratelimit_PATH_/api/v1/products_1615455120"
-"11"
+1) "productpage-ratelimit_PATH_/productpage_TENANTID_tenant03_1615466880"
+2) "productpage-ratelimit_PATH_/productpage_TENANTID_tenant02_1615466880"
+3) "productpage-ratelimit_PATH_/api/v1/products_1615466940"
+4) "productpage-ratelimit_PATH_/productpage_TENANTID_tenant01_1615466820"
+5) "productpage-ratelimit_PATH_/productpage_TENANTID_othervaule_1615466880"
+127.0.0.1:6379> GET "productpage-ratelimit_PATH_/productpage_TENANTID_tenant01_1615466820"
+"6"
+127.0.0.1:6379> GET "productpage-ratelimit_PATH_/productpage_TENANTID_othervaule_1615466880"
+"4"
 ```
 #### Understand the config files
 1. Below are deployment and service for ratelmit, redis.
@@ -197,7 +217,7 @@ $ curl "http://$GATEWAY_URL/api/v1/products" -v
     cat ./example01/40-envoyfilter-ratelimit-svc.yaml
     ```
 
-#### Apply files
+#### Clean up
 ```
 kubectl delete -f ./example02/
 ```
