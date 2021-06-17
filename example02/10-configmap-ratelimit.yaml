@@ -8,7 +8,7 @@ data:
     domain: productpage-ratelimit
     descriptors:
       - key: PATH
-        value: "/productpage"
+        value: "/oauth/v1/health"
         descriptors:
           - key: TENANTID
             value: tenant01
@@ -27,4 +27,4 @@ data:
       - key: PATH
         rate_limit:
           unit: minute
-          requests_per_unit: 10
+          requests_per_unit: 1000

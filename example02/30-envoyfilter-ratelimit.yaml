@@ -28,13 +28,13 @@ spec:
             "@type": type.googleapis.com/envoy.extensions.filters.http.ratelimit.v3.RateLimit
             # domain can be anything! Match it to the ratelimter service config
             domain: productpage-ratelimit
-            failure_mode_deny: true
+            failure_mode_deny: false
             rate_limit_service:
               grpc_service:
                 envoy_grpc:
                   cluster_name: rate_limit_cluster
                 timeout: 10s
-              transport_api_version: V3
+              #transport_api_version: V3
     - applyTo: CLUSTER
       match:
         cluster:
