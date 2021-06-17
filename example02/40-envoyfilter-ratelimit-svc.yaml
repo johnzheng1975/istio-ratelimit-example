@@ -23,7 +23,7 @@ spec:
               - request_headers:
                   header_name: "X-HPBP-Tenant-ID2"
                   descriptor_key: "TENANTID"
-            - actions: # any actions in here
-              - request_headers:
-                  header_name: ":path"
-                  descriptor_key: "PATH"
+#            - actions: # any actions in here
+#              - request_headers:
+#                  header_name: ":path"
+#                  descriptor_key: "PATH"

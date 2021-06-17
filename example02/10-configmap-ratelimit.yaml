@@ -5,7 +5,7 @@ metadata:
   namespace: ratelimit
 data:
   config.yaml: |
-    domain: productpage-ratelimit
+    domain: oauth-ratelimit
     descriptors:
       - key: PATH
         value: "/oauth/v1/health"
@@ -24,7 +24,7 @@ data:
             rate_limit:
               unit: minute
               requests_per_unit: 3
-      - key: PATH
-        rate_limit:
-          unit: minute
-          requests_per_unit: 1000
+#      - key: PATH
+#        rate_limit:
+#          unit: minute
+#          requests_per_unit: 1000
