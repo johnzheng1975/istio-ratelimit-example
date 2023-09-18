@@ -54,6 +54,7 @@ $ curl "http://$GATEWAY_URL/api/v1/products"
 #### View redis to understand more
 The redis store the access times for each action.
 ```
+$ k exec -ti -n ratelimit  redis-7bd7d98b4c-2ppmp    -- redis-cli
 127.0.0.1:6379> KEYS *
 1) "productpage-ratelimit_PATH_/productpage_1615455060"
 2) "productpage-ratelimit_PATH_/api/v1/products_1615455120"
@@ -151,6 +152,7 @@ $ curl "http://$GATEWAY_URL/api/v1/products"
 #### View redis to understand more
 The redis store the access times for each action.
 ```
+$ k exec -ti -n ratelimit  redis-7bd7d98b4c-2ppmp    -- redis-cli
 127.0.0.1:6379> KEYS *
 1) "productpage-ratelimit_PATH_/productpage_TENANTID_tenant03_1615466880"
 2) "productpage-ratelimit_PATH_/productpage_TENANTID_tenant02_1615466880"
