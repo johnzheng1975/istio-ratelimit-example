@@ -43,11 +43,11 @@ kubectl apply -f ./example01/
 ```
 #### Verify the results
 ```
-$ curl "http://$GATEWAY_URL/productpage"
+$ curl "http://$GATEWAY_URL/productpage" -v
 # Try first time, return 200.
 # Try second time, return 429.
 
-$ curl "http://$GATEWAY_URL/api/v1/products"
+$ curl "http://$GATEWAY_URL/api/v1/products" -v
 # Try first ten times, return 200.
 # Try once more, return 429.
 ```
