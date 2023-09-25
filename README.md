@@ -146,8 +146,8 @@ $ curl "http://$GATEWAY_URL/api/v1/products"
 # Try once more, return 429.
 ```
 
-`$GATEWAY_URL` is the value set in the [Bookinfo](https://istio.io/v1.9//docs/examples/bookinfo/) example.
-
+- `$GATEWAY_URL` is the value set in the [Bookinfo](https://istio.io/v1.9//docs/examples/bookinfo/) example.
+- Need run test quicker, to avoid the ratelimit reset for each minute. 
 
 #### View redis to understand more
 The redis store the access times for each action.
